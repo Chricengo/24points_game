@@ -3,83 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>24點挑戰 🧠</title>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>24分挑戰</title>
     <style>
-        body { font-family: -apple-system, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background-color: #fffaf0; touch-action: manipulation; }
-        .input-group { margin: 25px 0; display: flex; gap: 10px; }
-        .num-box { width: 60px; height: 60px; font-size: 24px; text-align: center; border: 3px solid #ffd93d; border-radius: 12px; }
-        .num-box:focus { border-color: #ff6b6b; outline: none; }
-        button { padding: 15px 40px; font-size: 20px; border-radius: 50px; background-color: #6c5ce7; color: white; border: none; font-weight: bold; }
-        li { background: white; margin-bottom: 10px; padding: 12px; border-radius: 15px; border-left: 5px solid #6c5ce7; list-style: none; font-family: monospace; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background-color: #f4f4f9; color: #333; }
+        h3 { margin-bottom: 20px; font-weight: 600; }
+        
+        .card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); width: 100%; max-width: 320px; margin-bottom: 20px; }
+        
+        .input-group { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 15px; }
+        .num-box { width: 60px; height: 60px; font-size: 24px; text-align: center; border: 1px solid #ddd; border-radius: 12px; }
+        
+        .btn { width: 100%; padding: 12px; font-size: 16px; border-radius: 10px; border: none; font-weight: 500; cursor: pointer; color: white; transition: 0.3s; }
+        .btn-solve { background-color: #5c6bc0; }
+        .btn-check { background-color: #26a69a; }
+        
+        #results { margin-top: 15px; width: 100%; }
+        .res-item { background: #eef2f5; padding: 8px; border-radius: 6px; margin-bottom: 5px; font-family: monospace; font-size: 16px; text-align: center; }
+        
+        .check-box { width: 100%; box-sizing: border-box; padding: 12px; font-size: 16px; border: 1px solid #ddd; border-radius: 10px; text-align: center; margin: 10px 0; }
     </style>
 </head>
 <body>
 
-    <h1>🧠 24點挑戰 🔢</h1>
-    <div class="input-group">
-        <input type="number" class="num-box" oninput="handleInput(this)" onfocus="this.value=''" placeholder="?">
-        <input type="number" class="num-box" oninput="handleInput(this)" onfocus="this.value=''" placeholder="?">
-        <input type="number" class="num-box" oninput="handleInput(this)" onfocus="this.value=''" placeholder="?">
-        <input type="number" class="num-box" oninput="handleInput(this)" onfocus="this.value=''" placeholder="?">
+    <h3>🧠 24分挑戰</h3>
+
+    <div class="card">
+        <div class="input-group">
+            <input type="number" class="num-box" oninput="handleInput(this)" onfocus="this.value=''" placeholder="?">
+            <input type="number" class="num-box" oninput="handleInput(this)" onfocus="this.value=''" placeholder="?">
+            <input type="number" class="num-box" oninput="handleInput(this)" onfocus="this.value=''" placeholder="?">
+            <input type="number" class="num-box" oninput="handleInput(this)" onfocus="this.value=''" placeholder="?">
+        </div>
+        <button class="btn btn-solve" onclick="runSolver()">計算所有解法</button>
+        <div id="results"></div>
     </div>
-    <button onclick="runSolver()">🚀 開始計算！</button>
-    <div id="results"></div>
+
+    <div class="card">
+        <h4 style="margin:0 0 10px 0;">學生驗證區</h4>
+        <input type="text" id="studentExpr" class="check-box" placeholder="輸入算式: 7+(8*2)+1">
+        <button class="btn btn-check" onclick="checkStudentAnswer()">檢查答案</button>
+        <div id="check-result" style="margin-top:10px; font-weight:600; text-align:center;"></div>
+    </div>
 
     <script>
-        let timer = null;
-
         function handleInput(el) {
-            clearTimeout(timer);
-            let val = el.value;
-
-            // 如果是輸入 1，等待 400ms 判斷下一個輸入是否為 0
-            if (val === "1") {
-                timer = setTimeout(() => {
-                    moveToNext(el);
-                }, 400);
-            } 
-            // 如果當前是 "1" 且下一個輸入不是 "0"，則觸發修正邏輯
-            else if (val.length > 1 && val[0] === "1" && val[1] !== "0") {
-                let currentDigit = val[0];
-                let nextDigit = val[1];
-                
-                el.value = currentDigit; // 當前框設為 1
-                const next = el.nextElementSibling;
-                if (next && next.tagName === 'INPUT') {
-                    next.value = nextDigit; // 下一個框設為剛輸入的數字
-                    next.focus();
-                }
-            } 
-            // 正常輸入 10 或其他數字
-            else if (val.length >= 2 || (val >= 2 && val <= 9)) {
-                moveToNext(el);
-            }
-        }
-
-        function moveToNext(el) {
-            const next = el.nextElementSibling;
-            if (next && next.tagName === 'INPUT') next.focus();
+            if (el.value === "1") { setTimeout(() => { if (el.value === "1") el.nextElementSibling?.focus(); }, 400); }
+            else if (el.value.length > 0) { el.nextElementSibling?.focus(); }
         }
 
         function runSolver() {
             const inputs = document.querySelectorAll('.num-box');
-            const nums = [];
-            for (let input of inputs) {
-                let val = parseInt(input.value);
-                if (isNaN(val) || val < 1 || val > 10) { alert("⚠️ 請輸入 1-10！"); return; }
-                nums.push(val);
-            }
+            const nums = Array.from(inputs).map(i => parseInt(i.value)).filter(n => !isNaN(n));
+            if (nums.length < 4) return alert("請輸入 4 個數字");
+            
             const results = new Set();
             solve(nums, results);
             const resDiv = document.getElementById('results');
-            resDiv.innerHTML = results.size > 0 
-                ? "<ul>" + Array.from(results).map(r => `<li>${r.replace(/\*/g, '×').replace(/\//g, '÷')} = 24</li>`).join('') + "</ul>"
-                : "<h3>😢 無解喔！</h3>";
+            resDiv.innerHTML = results.size > 0 ? "<h5 style='margin:15px 0 5px 0'>找到的解法：</h5>" + Array.from(results).map(r => `<div class="res-item">${r.replace(/\*/g, '×').replace(/\//g, '÷')} = 24</div>`).join('') : "<p style='text-align:center; color:#999'>無解</p>";
         }
 
-        // (solve 函數保持不變)
         function solve(nums, results) {
             function getPermutations(arr) {
                 if (arr.length <= 1) return [arr];
@@ -94,13 +76,7 @@
             const perms = getPermutations(nums);
             for (let p of perms) {
                 for (let o1 of ops) for (let o2 of ops) for (let o3 of ops) {
-                    const exprs = [
-                        `(((${p[0]}${o1}${p[1]})${o2}${p[2]})${o3}${p[3]})`,
-                        `(${p[0]}${o1}(${p[1]}${o2}${p[2]}))${o3}${p[3]}`,
-                        `${p[0]}${o1}((${p[1]}${o2}${p[2]})${o3}${p[3]})`,
-                        `${p[0]}${o1}(${p[1]}${o2}(${p[2]}${o3}${p[3]}))`,
-                        `(${p[0]}${o1}${p[1]})${o2}(${p[2]}${o3}${p[3]})`
-                    ];
+                    const exprs = [`(((${p[0]}${o1}${p[1]})${o2}${p[2]})${o3}${p[3]})`, `(${p[0]}${o1}(${p[1]}${o2}${p[2]}))${o3}${p[3]}`, `${p[0]}${o1}((${p[1]}${o2}${p[2]})${o3}${p[3]})`, `${p[0]}${o1}(${p[1]}${o2}(${p[2]}${o3}${p[3]}))`, `(${p[0]}${o1}${p[1]})${o2}(${p[2]}${o3}${p[3]})`];
                     for (let e of exprs) {
                         try {
                             let val = eval(e.replace(/\//g, '/1.0/'));
@@ -109,6 +85,16 @@
                     }
                 }
             }
+        }
+
+        function checkStudentAnswer() {
+            const expr = document.getElementById('studentExpr').value;
+            const resDiv = document.getElementById('check-result');
+            if (!/^[0-9+\-*/().\s]+$/.test(expr)) return resDiv.innerHTML = "❌ 包含非法符號";
+            try {
+                let val = eval(expr.replace(/\//g, '/1.0/'));
+                resDiv.innerHTML = (Math.abs(val - 24) < 0.0001) ? "🎉 正確！" : `🤔 結果是 ${val}`;
+            } catch (e) { resDiv.innerHTML = "⚠️ 算式格式有誤"; }
         }
     </script>
 </body>
