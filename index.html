@@ -5,27 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>24分挑戰</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background-color: #f4f4f9; color: #333; }
-        h3 { margin-bottom: 20px; font-weight: 600; }
+        body { font-family: -apple-system, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; background-color: #f4f4f9; color: #333; margin: 0; }
         
-        .card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); width: 100%; max-width: 320px; margin-bottom: 20px; }
+        /* 卡片設計 */
+        .card { background: white; padding: 15px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); width: 100%; max-width: 400px; margin-bottom: 15px; box-sizing: border-box; }
         
-        .input-group { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 15px; }
-        .num-box { width: 60px; height: 60px; font-size: 24px; text-align: center; border: 1px solid #ddd; border-radius: 12px; }
+        /* 關鍵優化：確保輸入組永遠適配寬度 */
+        .input-group { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 15px; width: 100%; }
+        .num-box { 
+            flex: 1; /* 自動填滿空間 */
+            height: 55px; 
+            font-size: 22px; 
+            text-align: center; 
+            border: 1px solid #ccc; 
+            border-radius: 8px; 
+            padding: 0;
+            box-sizing: border-box;
+        }
         
-        .btn { width: 100%; padding: 12px; font-size: 16px; border-radius: 10px; border: none; font-weight: 500; cursor: pointer; color: white; transition: 0.3s; }
+        .btn { width: 100%; padding: 12px; font-size: 16px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; color: white; margin-top: 5px; }
         .btn-solve { background-color: #5c6bc0; }
         .btn-check { background-color: #26a69a; }
         
-        #results { margin-top: 15px; width: 100%; }
-        .res-item { background: #eef2f5; padding: 8px; border-radius: 6px; margin-bottom: 5px; font-family: monospace; font-size: 16px; text-align: center; }
+        #results { margin-top: 10px; width: 100%; }
+        .res-item { background: #eef2f5; padding: 8px; border-radius: 6px; margin-bottom: 5px; font-family: monospace; text-align: center; }
         
-        .check-box { width: 100%; box-sizing: border-box; padding: 12px; font-size: 16px; border: 1px solid #ddd; border-radius: 10px; text-align: center; margin: 10px 0; }
+        .check-box { width: 100%; box-sizing: border-box; padding: 10px; font-size: 16px; border: 1px solid #ddd; border-radius: 8px; text-align: center; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <h3>🧠 24分挑戰</h3>
+    <h3 style="margin: 10px 0;">🧠 24分挑戰</h3>
 
     <div class="card">
         <div class="input-group">
@@ -40,7 +50,7 @@
 
     <div class="card">
         <h4 style="margin:0 0 10px 0;">學生驗證區</h4>
-        <input type="text" id="studentExpr" class="check-box" placeholder="輸入算式: 7+(8*2)+1">
+        <input type="text" id="studentExpr" class="check-box" placeholder="例如: 7+(8*2)+1">
         <button class="btn btn-check" onclick="checkStudentAnswer()">檢查答案</button>
         <div id="check-result" style="margin-top:10px; font-weight:600; text-align:center;"></div>
     </div>
@@ -59,7 +69,7 @@
             const results = new Set();
             solve(nums, results);
             const resDiv = document.getElementById('results');
-            resDiv.innerHTML = results.size > 0 ? "<h5 style='margin:15px 0 5px 0'>找到的解法：</h5>" + Array.from(results).map(r => `<div class="res-item">${r.replace(/\*/g, '×').replace(/\//g, '÷')} = 24</div>`).join('') : "<p style='text-align:center; color:#999'>無解</p>";
+            resDiv.innerHTML = results.size > 0 ? "<h5 style='margin:10px 0 5px 0'>找到的解法：</h5>" + Array.from(results).map(r => `<div class="res-item">${r.replace(/\*/g, '×').replace(/\//g, '÷')} = 24</div>`).join('') : "<p style='text-align:center; color:#999'>無解</p>";
         }
 
         function solve(nums, results) {
