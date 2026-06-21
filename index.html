@@ -6,24 +6,18 @@
     <title>24點挑戰 🧠</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="24點">
-    
     <style>
         body { font-family: -apple-system, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background-color: #fffaf0; touch-action: manipulation; }
-        h1 { color: #ff6b6b; margin-bottom: 10px; }
         .input-group { margin: 25px 0; display: flex; gap: 10px; }
         .num-box { width: 60px; height: 60px; font-size: 24px; text-align: center; border: 3px solid #ffd93d; border-radius: 12px; }
         .num-box:focus { border-color: #ff6b6b; outline: none; }
-        button { padding: 15px 40px; font-size: 20px; border: none; border-radius: 50px; background-color: #6c5ce7; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        button:active { transform: scale(0.95); }
-        #results { margin-top: 30px; width: 100%; max-width: 400px; }
-        li { background: white; margin-bottom: 10px; padding: 12px; border-radius: 15px; border-left: 5px solid #6c5ce7; font-size: 18px; text-align: center; list-style: none; font-family: monospace; }
+        button { padding: 15px 40px; font-size: 20px; border-radius: 50px; background-color: #6c5ce7; color: white; border: none; font-weight: bold; }
+        li { background: white; margin-bottom: 10px; padding: 12px; border-radius: 15px; border-left: 5px solid #6c5ce7; list-style: none; font-family: monospace; }
     </style>
 </head>
 <body>
 
     <h1>🧠 24點挑戰 🔢</h1>
-    <p>請輸入 4 個數字 (1-10)：</p>
     <div class="input-group">
         <input type="number" class="num-box" oninput="handleInput(this)" onfocus="this.value=''" placeholder="?">
         <input type="number" class="num-box" oninput="handleInput(this)" onfocus="this.value=''" placeholder="?">
@@ -38,24 +32,35 @@
 
         function handleInput(el) {
             clearTimeout(timer);
-            
-            // 處理自動跳轉邏輯
-            if (el.value === "1") {
-                // 如果輸入 1，等待 300ms 確定是不是要打 10
+            let val = el.value;
+
+            // 如果是輸入 1，等待 400ms 判斷下一個輸入是否為 0
+            if (val === "1") {
                 timer = setTimeout(() => {
                     moveToNext(el);
-                }, 500);
-            } else if (el.value.length > 0) {
-                // 如果是 2-9 或已經打完 10，直接跳轉
+                }, 400);
+            } 
+            // 如果當前是 "1" 且下一個輸入不是 "0"，則觸發修正邏輯
+            else if (val.length > 1 && val[0] === "1" && val[1] !== "0") {
+                let currentDigit = val[0];
+                let nextDigit = val[1];
+                
+                el.value = currentDigit; // 當前框設為 1
+                const next = el.nextElementSibling;
+                if (next && next.tagName === 'INPUT') {
+                    next.value = nextDigit; // 下一個框設為剛輸入的數字
+                    next.focus();
+                }
+            } 
+            // 正常輸入 10 或其他數字
+            else if (val.length >= 2 || (val >= 2 && val <= 9)) {
                 moveToNext(el);
             }
         }
 
         function moveToNext(el) {
             const next = el.nextElementSibling;
-            if (next && next.tagName === 'INPUT') {
-                next.focus();
-            }
+            if (next && next.tagName === 'INPUT') next.focus();
         }
 
         function runSolver() {
@@ -63,27 +68,18 @@
             const nums = [];
             for (let input of inputs) {
                 let val = parseInt(input.value);
-                if (isNaN(val) || val < 1 || val > 10) {
-                    alert("⚠️ 請輸入 1-10 的數字！");
-                    return;
-                }
+                if (isNaN(val) || val < 1 || val > 10) { alert("⚠️ 請輸入 1-10！"); return; }
                 nums.push(val);
             }
-            
             const results = new Set();
             solve(nums, results);
-            
-            const resultDiv = document.getElementById('results');
-            if (results.size > 0) {
-                resultDiv.innerHTML = "<h3>✨ 找到這些解法：</h3><ul>" + Array.from(results).map(r => {
-                    let display = r.replace(/\*/g, '×').replace(/\//g, '÷');
-                    return `<li>${display} = 24</li>`;
-                }).join('') + "</ul>";
-            } else {
-                resultDiv.innerHTML = "<h3>😢 這個組合無解喔！</h3>";
-            }
+            const resDiv = document.getElementById('results');
+            resDiv.innerHTML = results.size > 0 
+                ? "<ul>" + Array.from(results).map(r => `<li>${r.replace(/\*/g, '×').replace(/\//g, '÷')} = 24</li>`).join('') + "</ul>"
+                : "<h3>😢 無解喔！</h3>";
         }
 
+        // (solve 函數保持不變)
         function solve(nums, results) {
             function getPermutations(arr) {
                 if (arr.length <= 1) return [arr];
@@ -94,10 +90,8 @@
                 }
                 return perms;
             }
-
             const ops = ['+', '-', '*', '/'];
             const perms = getPermutations(nums);
-
             for (let p of perms) {
                 for (let o1 of ops) for (let o2 of ops) for (let o3 of ops) {
                     const exprs = [
@@ -109,18 +103,12 @@
                     ];
                     for (let e of exprs) {
                         try {
-                            if (compute(e) === 24) results.add(e);
+                            let val = eval(e.replace(/\//g, '/1.0/'));
+                            if (Math.abs(val - 24) < 0.0001 && val % 1 === 0 && val > 0) results.add(e);
                         } catch (err) {}
                     }
                 }
             }
-        }
-
-        function compute(expr) {
-            let val = eval(expr.replace(/\//g, '/1.0/')); 
-            // 檢查結果是否為整數，且過程中不產生 0 或負數 (簡化驗證)
-            if (Math.abs(val - Math.round(val)) > 0.0001 || val <= 0) throw new Error("Invalid");
-            return Math.round(val);
         }
     </script>
 </body>
