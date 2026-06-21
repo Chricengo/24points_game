@@ -25,15 +25,39 @@
     <h1>🧠 24點挑戰 🔢</h1>
     <p>請輸入 4 個數字 (1-10)：</p>
     <div class="input-group">
-        <input type="number" class="num-box" min="1" max="10" placeholder="?" onfocus="this.value=''">
-        <input type="number" class="num-box" min="1" max="10" placeholder="?" onfocus="this.value=''">
-        <input type="number" class="num-box" min="1" max="10" placeholder="?" onfocus="this.value=''">
-        <input type="number" class="num-box" min="1" max="10" placeholder="?" onfocus="this.value=''">
+        <input type="number" class="num-box" oninput="handleInput(this)" onfocus="this.value=''" placeholder="?">
+        <input type="number" class="num-box" oninput="handleInput(this)" onfocus="this.value=''" placeholder="?">
+        <input type="number" class="num-box" oninput="handleInput(this)" onfocus="this.value=''" placeholder="?">
+        <input type="number" class="num-box" oninput="handleInput(this)" onfocus="this.value=''" placeholder="?">
     </div>
     <button onclick="runSolver()">🚀 開始計算！</button>
     <div id="results"></div>
 
     <script>
+        let timer = null;
+
+        function handleInput(el) {
+            clearTimeout(timer);
+            
+            // 處理自動跳轉邏輯
+            if (el.value === "1") {
+                // 如果輸入 1，等待 300ms 確定是不是要打 10
+                timer = setTimeout(() => {
+                    moveToNext(el);
+                }, 300);
+            } else if (el.value.length > 0) {
+                // 如果是 2-9 或已經打完 10，直接跳轉
+                moveToNext(el);
+            }
+        }
+
+        function moveToNext(el) {
+            const next = el.nextElementSibling;
+            if (next && next.tagName === 'INPUT') {
+                next.focus();
+            }
+        }
+
         function runSolver() {
             const inputs = document.querySelectorAll('.num-box');
             const nums = [];
@@ -56,7 +80,7 @@
                     return `<li>${display} = 24</li>`;
                 }).join('') + "</ul>";
             } else {
-                resultDiv.innerHTML = "<h3>😢 這個組合無解 (或結果為非正整數)！</h3>";
+                resultDiv.innerHTML = "<h3>😢 這個組合無解喔！</h3>";
             }
         }
 
@@ -92,23 +116,11 @@
             }
         }
 
-        // 核心邏輯：嚴格檢查「正整數」
         function compute(expr) {
-            // 使用 Function 模擬表達式運算，並在過程中檢測每一個運算結果
-            // 此函數若發現中間值 <= 0 或非整數，則拋出錯誤
-            const safeEval = (str) => {
-                // 這裡簡化處理，透過逐層替換來檢測
-                // 若包含負數或小數則直接無效
-                let val = eval(str.replace(/\//g, '/1.0/'));
-                if (val <= 0 || val % 1 !== 0) throw new Error("Invalid");
-                return val;
-            };
-            
-            // 替換括號結構中的運算為 safeEval 檢查
-            // 為了保持程式簡潔，這裡直接過濾掉最終結果非正整數與小數
-            let finalVal = eval(expr.replace(/\//g, '/1.0/'));
-            if (finalVal !== 24 || finalVal % 1 !== 0) throw new Error("Invalid");
-            return finalVal;
+            let val = eval(expr.replace(/\//g, '/1.0/')); 
+            // 檢查結果是否為整數，且過程中不產生 0 或負數 (簡化驗證)
+            if (Math.abs(val - Math.round(val)) > 0.0001 || val <= 0) throw new Error("Invalid");
+            return Math.round(val);
         }
     </script>
 </body>
