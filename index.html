@@ -5,32 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>24分挑戰</title>
     <style>
-        body { font-family: -apple-system, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; background-color: #f4f4f9; color: #333; margin: 0; }
-        
-        /* 卡片設計 */
-        .card { background: white; padding: 15px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); width: 100%; max-width: 400px; margin-bottom: 15px; box-sizing: border-box; }
-        
-        /* 關鍵優化：確保輸入組永遠適配寬度 */
-        .input-group { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 15px; width: 100%; }
-        .num-box { 
-            flex: 1; /* 自動填滿空間 */
-            height: 55px; 
-            font-size: 22px; 
-            text-align: center; 
-            border: 1px solid #ccc; 
-            border-radius: 8px; 
-            padding: 0;
-            box-sizing: border-box;
+        /* 移除所有不必要的邊距，確保不會橫向溢出 */
+        body { 
+            font-family: -apple-system, sans-serif; 
+            display: flex; flex-direction: column; align-items: center; 
+            padding: 10px; background-color: #f4f4f9; margin: 0; box-sizing: border-box;
+            width: 100vw; overflow-x: hidden;
         }
         
-        .btn { width: 100%; padding: 12px; font-size: 16px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; color: white; margin-top: 5px; }
+        .card { 
+            background: white; padding: 12px; border-radius: 12px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+            width: 95vw; max-width: 400px; margin-bottom: 10px; box-sizing: border-box;
+        }
+        
+        /* 關鍵：強制寬度為 100%，並讓輸入格平分空間 */
+        .input-group { 
+            display: flex; justify-content: space-between; 
+            gap: 6px; width: 100%; box-sizing: border-box;
+        }
+        .num-box { 
+            flex: 1; height: 50px; font-size: 20px; text-align: center; 
+            border: 1px solid #ccc; border-radius: 8px; padding: 0;
+            box-sizing: border-box; -webkit-appearance: none;
+        }
+        
+        .btn { 
+            width: 100%; padding: 10px; font-size: 15px; border-radius: 8px; 
+            border: none; font-weight: 600; cursor: pointer; color: white; margin-top: 8px;
+        }
         .btn-solve { background-color: #5c6bc0; }
         .btn-check { background-color: #26a69a; }
         
-        #results { margin-top: 10px; width: 100%; }
-        .res-item { background: #eef2f5; padding: 8px; border-radius: 6px; margin-bottom: 5px; font-family: monospace; text-align: center; }
-        
-        .check-box { width: 100%; box-sizing: border-box; padding: 10px; font-size: 16px; border: 1px solid #ddd; border-radius: 8px; text-align: center; margin-top: 10px; }
+        #results { width: 100%; margin-top: 10px; }
+        .res-item { background: #eef2f5; padding: 6px; border-radius: 4px; margin-bottom: 4px; font-family: monospace; text-align: center; font-size: 14px; }
+        .check-box { width: 100%; box-sizing: border-box; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; text-align: center; margin-top: 8px; }
     </style>
 </head>
 <body>
@@ -49,10 +58,10 @@
     </div>
 
     <div class="card">
-        <h4 style="margin:0 0 10px 0;">學生驗證區</h4>
-        <input type="text" id="studentExpr" class="check-box" placeholder="例如: 7+(8*2)+1">
+        <h4 style="margin:0;">學生驗證區</h4>
+        <input type="text" id="studentExpr" class="check-box" placeholder="輸入算式: 7+(8*2)+1">
         <button class="btn btn-check" onclick="checkStudentAnswer()">檢查答案</button>
-        <div id="check-result" style="margin-top:10px; font-weight:600; text-align:center;"></div>
+        <div id="check-result" style="margin-top:8px; font-weight:600; text-align:center; font-size: 14px;"></div>
     </div>
 
     <script>
