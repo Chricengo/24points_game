@@ -44,7 +44,7 @@
                 // 如果輸入 1，等待 300ms 確定是不是要打 10
                 timer = setTimeout(() => {
                     moveToNext(el);
-                }, 1000);
+                }, 500);
             } else if (el.value.length > 0) {
                 // 如果是 2-9 或已經打完 10，直接跳轉
                 moveToNext(el);
