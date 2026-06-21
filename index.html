@@ -5,41 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>24分挑戰</title>
     <style>
-        /* 移除所有不必要的邊距，確保不會橫向溢出 */
         body { 
             font-family: -apple-system, sans-serif; 
             display: flex; flex-direction: column; align-items: center; 
-            padding: 10px; background-color: #f4f4f9; margin: 0; box-sizing: border-box;
-            width: 100vw; overflow-x: hidden;
+            padding: 10px; background-color: #f4f4f9; margin: 0;
         }
         
         .card { 
-            background: white; padding: 12px; border-radius: 12px; 
+            background: white; padding: 15px; border-radius: 12px; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
-            width: 95vw; max-width: 400px; margin-bottom: 10px; box-sizing: border-box;
+            width: 320px; /* 固定寬度，確保不超出 iPhone */
+            margin-bottom: 10px; box-sizing: border-box;
         }
         
-        /* 關鍵：強制寬度為 100%，並讓輸入格平分空間 */
+        /* 數字格固定大小 */
         .input-group { 
-            display: flex; justify-content: space-between; 
-            gap: 6px; width: 100%; box-sizing: border-box;
+            display: flex; justify-content: center; /* 置中排列 */
+            gap: 10px; /* 格子間距 */
+            width: 100%;
         }
         .num-box { 
-            flex: 1; height: 50px; font-size: 20px; text-align: center; 
-            border: 1px solid #ccc; border-radius: 8px; padding: 0;
-            box-sizing: border-box; -webkit-appearance: none;
+            width: 60px; /* 固定寬度 */
+            height: 60px; /* 固定高度 */
+            font-size: 24px; text-align: center; 
+            border: 1px solid #ccc; border-radius: 8px;
+            padding: 0; box-sizing: border-box;
         }
         
         .btn { 
-            width: 100%; padding: 10px; font-size: 15px; border-radius: 8px; 
-            border: none; font-weight: 600; cursor: pointer; color: white; margin-top: 8px;
+            width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; 
+            border: none; font-weight: 600; cursor: pointer; color: white; margin-top: 10px;
         }
         .btn-solve { background-color: #5c6bc0; }
         .btn-check { background-color: #26a69a; }
         
-        #results { width: 100%; margin-top: 10px; }
-        .res-item { background: #eef2f5; padding: 6px; border-radius: 4px; margin-bottom: 4px; font-family: monospace; text-align: center; font-size: 14px; }
         .check-box { width: 100%; box-sizing: border-box; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; text-align: center; margin-top: 8px; }
+        #results { margin-top: 10px; text-align: center; }
     </style>
 </head>
 <body>
@@ -59,12 +60,13 @@
 
     <div class="card">
         <h4 style="margin:0;">學生驗證區</h4>
-        <input type="text" id="studentExpr" class="check-box" placeholder="輸入算式: 7+(8*2)+1">
+        <input type="text" id="studentExpr" class="check-box" placeholder="7+(8*2)+1">
         <button class="btn btn-check" onclick="checkStudentAnswer()">檢查答案</button>
-        <div id="check-result" style="margin-top:8px; font-weight:600; text-align:center; font-size: 14px;"></div>
+        <div id="check-result" style="margin-top:8px; font-weight:600; font-size: 14px;"></div>
     </div>
 
     <script>
+        // JS 邏輯保持不變
         function handleInput(el) {
             if (el.value === "1") { setTimeout(() => { if (el.value === "1") el.nextElementSibling?.focus(); }, 400); }
             else if (el.value.length > 0) { el.nextElementSibling?.focus(); }
@@ -73,12 +75,12 @@
         function runSolver() {
             const inputs = document.querySelectorAll('.num-box');
             const nums = Array.from(inputs).map(i => parseInt(i.value)).filter(n => !isNaN(n));
-            if (nums.length < 4) return alert("請輸入 4 個數字");
+            if (nums.length < 4) return alert("請填滿 4 個數字");
             
             const results = new Set();
             solve(nums, results);
             const resDiv = document.getElementById('results');
-            resDiv.innerHTML = results.size > 0 ? "<h5 style='margin:10px 0 5px 0'>找到的解法：</h5>" + Array.from(results).map(r => `<div class="res-item">${r.replace(/\*/g, '×').replace(/\//g, '÷')} = 24</div>`).join('') : "<p style='text-align:center; color:#999'>無解</p>";
+            resDiv.innerHTML = results.size > 0 ? "<h5 style='margin:10px 0 5px 0'>解法：</h5>" + Array.from(results).slice(0,5).map(r => `<div style='font-family:monospace; margin-bottom:4px;'>${r.replace(/\*/g, '×').replace(/\//g, '÷')} = 24</div>`).join('') : "<p>無解</p>";
         }
 
         function solve(nums, results) {
