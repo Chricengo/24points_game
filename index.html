@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>24點挑戰 🧠</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="24點">
+    
+    <style>
+        body { font-family: -apple-system, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background-color: #fffaf0; touch-action: manipulation; }
+        h1 { color: #ff6b6b; margin-bottom: 10px; }
+        .input-group { margin: 25px 0; display: flex; gap: 10px; }
+        .num-box { width: 60px; height: 60px; font-size: 24px; text-align: center; border: 3px solid #ffd93d; border-radius: 12px; }
+        .num-box:focus { border-color: #ff6b6b; outline: none; }
+        button { padding: 15px 40px; font-size: 20px; border: none; border-radius: 50px; background-color: #6c5ce7; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:active { transform: scale(0.95); }
+        #results { margin-top: 30px; width: 100%; max-width: 400px; }
+        li { background: white; margin-bottom: 10px; padding: 12px; border-radius: 15px; border-left: 5px solid #6c5ce7; font-size: 18px; text-align: center; list-style: none; font-family: monospace; }
+    </style>
+</head>
+<body>
+
+    <h1>🧠 24點挑戰 🔢</h1>
+    <p>請輸入 4 個數字 (1-10)：</p>
+    <div class="input-group">
+        <input type="number" class="num-box" min="1" max="10" placeholder="?">
+        <input type="number" class="num-box" min="1" max="10" placeholder="?">
+        <input type="number" class="num-box" min="1" max="10" placeholder="?">
+        <input type="number" class="num-box" min="1" max="10" placeholder="?">
+    </div>
+    <button onclick="runSolver()">🚀 開始計算！</button>
+    <div id="results"></div>
+
+    <script>
+        function runSolver() {
+            const inputs = document.querySelectorAll('.num-box');
+            const nums = [];
+            for (let input of inputs) {
+                let val = parseInt(input.value);
+                if (isNaN(val) || val < 1 || val > 10) {
+                    alert("⚠️ 請輸入 1-10 的數字！");
+                    return;
+                }
+                nums.push(val);
+            }
+            
+            const results = new Set();
+            solve(nums, results);
+            
+            const resultDiv = document.getElementById('results');
+            if (results.size > 0) {
+                resultDiv.innerHTML = "<h3>✨ 找到這些解法：</h3><ul>" + Array.from(results).map(r => {
+                    // 將運算符轉換為漂亮的符號顯示
+                    let display = r.replace(/\*/g, '×').replace(/\//g, '÷');
+                    return `<li>${display} = 24</li>`;
+                }).join('') + "</ul>";
+            } else {
+                resultDiv.innerHTML = "<h3>😢 這個組合無解喔！</h3>";
+            }
+        }
+
+        function solve(nums, results) {
+            function getPermutations(arr) {
+                if (arr.length <= 1) return [arr];
+                let perms = [];
+                for (let i = 0; i < arr.length; i++) {
+                    let rest = getPermutations(arr.slice(0, i).concat(arr.slice(i + 1)));
+                    for (let p of rest) perms.push([arr[i], ...p]);
+                }
+                return perms;
+            }
+
+            const ops = ['+', '-', '*', '/'];
+            const perms = getPermutations(nums);
+
+            for (let p of perms) {
+                for (let o1 of ops) for (let o2 of ops) for (let o3 of ops) {
+                    const exprs = [
+                        `(((${p[0]}${o1}${p[1]})${o2}${p[2]})${o3}${p[3]})`,
+                        `(${p[0]}${o1}(${p[1]}${o2}${p[2]}))${o3}${p[3]}`,
+                        `${p[0]}${o1}((${p[1]}${o2}${p[2]})${o3}${p[3]})`,
+                        `${p[0]}${o1}(${p[1]}${o2}(${p[2]}${o3}${p[3]}))`,
+                        `(${p[0]}${o1}${p[1]})${o2}(${p[2]}${o3}${p[3]})`
+                    ];
+                    for (let e of exprs) {
+                        try {
+                            if (compute(e) === 24) results.add(e);
+                        } catch (err) {}
+                    }
+                }
+            }
+        }
+
+        function compute(expr) {
+            // 嚴格檢查整數運算：若中間出現分數則拋錯
+            let val = eval(expr.replace(/\//g, '/1.0/')); 
+            if (Math.abs(val - Math.round(val)) > 0.0001) throw new Error("Fraction");
+            return Math.round(val);
+        }
+    </script>
+</body>
+</html>
